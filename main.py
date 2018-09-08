@@ -1,21 +1,16 @@
+#!/usr/bin/python
 import commands
-import datefinder
 import time
 import datetime
 
-
-
 status, output = commands.getstatusoutput("pmset -g log|grep -e \" Sleep  \" -e \" Wake  \"")
 # status2, output2= commands.getstatusoutput("ioreg -l | awk '$3~/Capacity/{c[$3]=$5}END{OFMT=\"%.3f\";max=c[\"\"MaxCapacity\"\"];print(max>0?100*c[\"\"CurrentCapacity\"\"]/max:\"?\")}'")
-# status2, output2= commands.getstatusoutput("ioreg -l | awk '$3~/Capacity/{c[$3]=$5}END{OFMT=\"%.3f\";max=c['MaxCapacity'];print(max>0?100*c['CurrentCapacity']/max:\"?\")}'")
+# status2, output2= commands.getstatusoutput("ioreg -l | awk \'$3~/Capacity/{c[$3]=$5}END{OFMT=\"%.3f\";max=c[\"\"MaxCapacity\"\"];print(max>0?100*c[\"\"CurrentCapacity\"\"]/max:\"?\")}\'")
 
 
 output = output.split("\n")
 
 output.sort(reverse=True)
-
-# print len(output)
-# print output
 
 dates =[]
 
@@ -29,19 +24,24 @@ dates.sort(reverse=False)
 
 wake_and_sleep = []
 for line in dates:
+    # print line
     date = None
-    matches = datefinder.find_dates(line)
+    # matches = datefinder.find_dates(line)
+    if " Wake" in line:
+        day_and_time = line.split(" Wake")
+    elif " Sleep" in line:
+        day_and_time = line.split(" Sleep")
     date_in_seconds = None
-    for match in matches:
-        if "+" in str(match):
-            date_time = str(match).split(" ")[1].split("+")[0]
-        elif "-" in str(match):
-            date_time = str(match).split(" ")[1].split("-")[0]
-        date_day = str(match).split(" ")[0]
-        date_day_and_time = date_day + " " + date_time
-        x = time.strptime(date_day_and_time, "%Y-%m-%d %H:%M:%S")
-        date_in_seconds = datetime.timedelta(days=x.tm_yday, hours=x.tm_hour, minutes=x.tm_min, seconds=x.tm_sec).total_seconds()
-        break
+
+    if "+" in str(day_and_time[0]):
+        date_time = str(day_and_time[0]).split(" ")[1].split("+")[0]
+    elif "-" in str(day_and_time[0]):
+        date_time = str(day_and_time[0]).split(" ")[1].split("-")[0]
+    date_day = str(day_and_time[0]).split(" ")[0]
+    date_day_and_time = date_day + " " + date_time
+    x = time.strptime(date_day_and_time, "%Y-%m-%d %H:%M:%S")
+    date_in_seconds = datetime.timedelta(days=x.tm_yday, hours=x.tm_hour, minutes=x.tm_min, seconds=x.tm_sec).total_seconds()
+
     if "Wake" in line:
         wake_and_sleep.append(("Wake", date_in_seconds))
     if "Sleep" in line:

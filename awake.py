@@ -2,11 +2,9 @@
 import commands
 import time
 import datetime
+import re
 
 status, output = commands.getstatusoutput("pmset -g log|grep -e \" Sleep  \" -e \" Wake  \"")
-# status2, output2= commands.getstatusoutput("ioreg -l | awk '$3~/Capacity/{c[$3]=$5}END{OFMT=\"%.3f\";max=c[\"\"MaxCapacity\"\"];print(max>0?100*c[\"\"CurrentCapacity\"\"]/max:\"?\")}'")
-# status2, output2= commands.getstatusoutput("ioreg -l | awk \'$3~/Capacity/{c[$3]=$5}END{OFMT=\"%.3f\";max=c[\"\"MaxCapacity\"\"];print(max>0?100*c[\"\"CurrentCapacity\"\"]/max:\"?\")}\'")
-
 
 output = output.split("\n")
 
@@ -59,10 +57,25 @@ for i in range(0, len(wake_and_sleep)):
     except:
         pass
 
-if len(wake_and_sleep) > 1 and wake_and_sleep[-1][0] == "Wake":
+status, output= commands.getstatusoutput("ioreg -l | awk '$3~/Capacity/'")
+
+current_battery = float(map(int, re.findall(r'\d+', output.split("| |")[2].strip()))[0]) / float(map(int, re.findall(r'\d+', output.split("| |")[3].strip()))[0]) * 100.0
+
+if current_battery < 100.0:
     now = time.strptime(str(datetime.datetime.now()).split(".")[0], '%Y-%m-%d %H:%M:%S')
     date_in_seconds_now = datetime.timedelta(days=now.tm_yday, hours=now.tm_hour, minutes=now.tm_min, seconds=int(now.tm_sec)).total_seconds()
     total_awake_time = total_awake_time + date_in_seconds_now - wake_and_sleep[-1][1]
-    print "On use:", str(datetime.timedelta(seconds=total_awake_time)), "| On sleep:", str(datetime.timedelta(seconds=total_sleep_time))
+    print "On use:", str(datetime.timedelta(seconds=total_awake_time)), "| On sleep:", str(datetime.timedelta(seconds=total_sleep_time)), "| Battery:", '{0:.2f}'.format(current_battery)
 else:
     print "No data!"
+
+
+
+
+
+
+
+
+
+
+

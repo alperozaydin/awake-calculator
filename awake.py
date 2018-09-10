@@ -59,13 +59,18 @@ for i in range(0, len(wake_and_sleep)):
 
 status, output= commands.getstatusoutput("ioreg -l | awk '$3~/Capacity/'")
 
-current_battery = float(map(int, re.findall(r'\d+', output.split("| |")[2].strip()))[0]) / float(map(int, re.findall(r'\d+', output.split("| |")[3].strip()))[0]) * 100.0
+current_battery = map(int, re.findall(r'\d+', output.split("| |")[2].strip()))[0]
+design_capacity =  map(int, re.findall(r'\d+', output.split("| |")[3].strip()))[0]
+max_capacity = map(int, re.findall(r'\d+', output.split("| |")[1].strip()))[0]
 
-if current_battery < 100.0:
+battery_capacity_design = float(current_battery) / float(design_capacity) * 100.0
+battery_capacity_real = float(-current_battery) / float(max_capacity - design_capacity - (design_capacity)) * 100.0
+
+if battery_capacity_design < 100.0:
     now = time.strptime(str(datetime.datetime.now()).split(".")[0], '%Y-%m-%d %H:%M:%S')
     date_in_seconds_now = datetime.timedelta(days=now.tm_yday, hours=now.tm_hour, minutes=now.tm_min, seconds=int(now.tm_sec)).total_seconds()
     total_awake_time = total_awake_time + date_in_seconds_now - wake_and_sleep[-1][1]
-    print "On use:", str(datetime.timedelta(seconds=total_awake_time)), "| On sleep:", str(datetime.timedelta(seconds=total_sleep_time)), "| Battery:", '{0:.2f}'.format(current_battery)
+    print "On use:", str(datetime.timedelta(seconds=total_awake_time)), "| On sleep:", str(datetime.timedelta(seconds=total_sleep_time)), "| Battery (Design):", '{0:.2f}'.format(battery_capacity_design), "| Battery (Capacity):", '{0:.2f}'.format(battery_capacity_real) 
 else:
     print "No data!"
 

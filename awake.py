@@ -76,13 +76,7 @@ def awake_calculator():
 
     battery_capacity_design = float(current_battery) / float(design_capacity) * 100.0
     battery_capacity_real = float(-current_battery) / float(max_capacity - design_capacity - (design_capacity)) * 100.0
-    print current_battery
-    print design_capacity
-    print max_capacity
 
-    print "asd"
-    print battery_capacity_design
-    print battery_capacity_real
     if battery_capacity_real < 100.0:
         now = time.strptime(str(datetime.datetime.now()).split(".")[0], '%Y-%m-%d %H:%M:%S')
         date_in_seconds_now = datetime.timedelta(days=now.tm_yday, hours=now.tm_hour, minutes=now.tm_min, seconds=int(now.tm_sec)).total_seconds()

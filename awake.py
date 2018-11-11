@@ -28,12 +28,8 @@ def awake_calculator():
 
     dates.sort(reverse=False)
 
-    on_AC = ""
-
     wake_and_sleep = []
     for line in dates:
-        if len(dates) == 1 and "Using AC" in line:
-            on_AC = "-on AC-\n"
         date = None
         # matches = datefinder.find_dates(line)
         if " Wake" in line:
@@ -81,7 +77,7 @@ def awake_calculator():
         now = time.strptime(str(datetime.datetime.now()).split(".")[0], '%Y-%m-%d %H:%M:%S')
         date_in_seconds_now = datetime.timedelta(days=now.tm_yday, hours=now.tm_hour, minutes=now.tm_min, seconds=int(now.tm_sec)).total_seconds()
         total_awake_time = total_awake_time + date_in_seconds_now - wake_and_sleep[-1][1]
-        print on_AC, "On use:", str(datetime.timedelta(seconds=total_awake_time)), "| On sleep:", str(datetime.timedelta(seconds=total_sleep_time)), "| Battery (Design):", '{0:.2f}'.format(battery_capacity_design), "| Battery (Capacity):", '{0:.2f}'.format(battery_capacity_real) 
+        print "On use:", str(datetime.timedelta(seconds=total_awake_time)), "| On sleep:", str(datetime.timedelta(seconds=total_sleep_time)), "| Battery (Design):", '{0:.2f}'.format(battery_capacity_design), "| Battery (Capacity):", '{0:.2f}'.format(battery_capacity_real)
     else:
         print "No data! The battery is already full.\nUse your computer for a while in battery and come back again! :)"
 

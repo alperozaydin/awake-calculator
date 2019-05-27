@@ -23,15 +23,17 @@ def awake_calculator():
 
     dates = []
 
-    if on_charge_check() != False:
-        dates.append(on_charge_check())
-    else :
-        for line in output:
-            # add condititon for user can charge macbook on awake till 100 percent and start using
-            if "(Charge:100%)" in line and "Wake" in line:
-                dates.append(line)
-                break
+    charge_check = on_charge_check()
+
+    if charge_check is not False:
+        dates.append(charge_check)
+
+    for line in output:
+        # add condititon for user can charge macbook on awake till 100 percent and start using
+        if "(Charge:100%)" in line and "Wake" in line:
             dates.append(line)
+            break
+        dates.append(line)
 
     dates.sort(reverse=False)
 
@@ -54,7 +56,7 @@ def awake_calculator():
         x = time.strptime(date_day_and_time, "%Y-%m-%d %H:%M:%S")
         date_in_seconds = datetime.timedelta(days=x.tm_yday, hours=x.tm_hour, minutes=x.tm_min, seconds=x.tm_sec).total_seconds()
 
-        if "Wake" or "Assertions" in line:
+        if "Wake" in line or "Assertions" in line:
             wake_and_sleep.append(("Wake", date_in_seconds))
         if "Sleep" in line:
             wake_and_sleep.append(("Sleep", date_in_seconds))
@@ -86,7 +88,7 @@ def awake_calculator():
         total_awake_time = total_awake_time + date_in_seconds_now - wake_and_sleep[-1][1]
         print "On use:", str(datetime.timedelta(seconds=total_awake_time)), "| On sleep:", str(datetime.timedelta(seconds=total_sleep_time)), "| Battery (Design):", '{0:.2f}'.format(battery_capacity_design), "| Battery (Capacity):", '{0:.2f}'.format(battery_capacity_real)
     else:
-        print "No data! The battery is already full.\nUse your computer for a while in battery and come back again! :)"
+        print "No data! The battery is already full.\nUse your computer for a while on battery and come back again! :)"
 
 
 def on_charge_check():
@@ -107,10 +109,9 @@ def on_charge_check():
         return False
 
 
-
 def main():
-    # on_charge_check()
     awake_calculator()
+
 
 if __name__ == "__main__":
     main()
